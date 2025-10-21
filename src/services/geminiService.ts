@@ -16,7 +16,8 @@ function fileToGenerativePart(base64: string, mimeType: string) {
   };
 }
 
-const API_KEY = import.meta.env.VITE_API_KEY;
+// FIX: The API key must be obtained from process.env.API_KEY as per the guidelines.
+const API_KEY = process.env.API_KEY;
 
 export async function getFashionAdvice(
   items: ItemForApi[],
@@ -34,7 +35,8 @@ export async function getFashionAdvice(
   }
 
   const ai = new GoogleGenAI({ apiKey: API_KEY });
-  const model = 'gemini-2.5-flash-image';
+  // FIX: Switched to a more capable model for complex multimodal generation and removed invalid config.
+  const model = 'gemini-2.5-pro';
 
   const imageParts = items.map(item => fileToGenerativePart(item.base64, item.mimeType));
 
@@ -91,9 +93,6 @@ O formato da sua resposta final deve ser uma sequência estrita de pares imagem-
           { text: systemPrompt },
           ...imageParts
         ]
-      },
-      config: {
-          responseModalities: [Modality.IMAGE, Modality.TEXT],
       },
     });
 
