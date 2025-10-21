@@ -1,5 +1,13 @@
 import { GoogleGenAI, Modality } from "@google/genai";
-import { ClothingCategory, Look } from "../types";
+
+type ClothingCategory = 'top' | 'bottom' | 'fullbody_outerwear' | 'shoes' | 'accessory' | string;
+
+interface Look {
+  id: string;
+  image: string | null;
+  description: string;
+  isFavorited: boolean;
+}
 
 type ItemForApi = {
   base64: string;
@@ -17,6 +25,13 @@ function fileToGenerativePart(base64: string, mimeType: string) {
 }
 
 // FIX: Per the coding guidelines, the API key must be obtained exclusively from `process.env.API_KEY`. This also resolves the TypeScript error for `import.meta.env`.
+// Provide a lightweight ambient declaration for 'process' so TypeScript knows about process.env at compile time.
+declare const process: {
+  env: {
+    API_KEY?: string;
+    [key: string]: string | undefined;
+  };
+};
 const API_KEY = process.env.API_KEY;
 
 export async function getFashionAdvice(
@@ -99,10 +114,18 @@ O formato da sua resposta final deve ser uma sequência estrita de pares imagem-
     const looks: Omit<Look, 'id' | 'isFavorited'>[] = [];
     let currentImage: string | null = null;
     
-    for (const part of response.candidates[0].content.parts) {
+    const candidate = response.candidates?.[0];
+    if (!candidate || !candidate.content || !Array.isArray(candidate.content.parts)) {
+      throw new Error("A IA não retornou conteúdo válido. Verifique a resposta da API.");
+    }
+
+    for (const part of candidate.content.parts) {
       if (part.inlineData) {
-        const base64ImageBytes: string = part.inlineData.data;
+        const base64ImageBytes = part.inlineData.data;
         const mimeType = part.inlineData.mimeType;
+        if (!base64ImageBytes || !mimeType) {
+          throw new Error("A IA retornou dados de imagem incompletos.");
+        }
         currentImage = `data:${mimeType};base64,${base64ImageBytes}`;
       } else if (part.text) {
         looks.push({
@@ -146,9 +169,7 @@ export async function virtualTryOn(
   const systemPrompt = `Você é um especialista em provador virtual de IA. Sua tarefa é vestir a pessoa na primeira imagem (o modelo) com as roupas fornecidas nas imagens subsequentes.
   - Analise o modelo e as peças de roupa.
   - Projete as roupas sobre o corpo do modelo de forma realista, respeitando a perspectiva, o caimento do tecido e a iluminação.
-  - Mantenha a pose original, a forma do corpo e o fundo da imagem do modelo intactos.
-  - O resultado final deve ser uma única imagem fotorrealista do modelo vestindo as roupas selecionadas.
-  - Não inclua NENHUM texto em sua resposta, apenas a imagem final.`;
+  - Mantenha a pose original, a forma do corpo e o fundo da imagem do modelo intactos.`;
 
   try {
     const response = await ai.models.generateContent({
@@ -160,15 +181,21 @@ export async function virtualTryOn(
           ...clothingParts
         ]
       },
-      config: {
-          responseModalities: [Modality.IMAGE],
-      },
     });
 
-    const part = response.candidates[0].content.parts[0];
+    const candidate = response.candidates?.[0];
+    if (!candidate || !candidate.content || !Array.isArray(candidate.content.parts) || candidate.content.parts.length === 0) {
+      throw new Error("A IA não retornou uma imagem válida.");
+    }
+
+    // Prefer any part that contains inlineData (image)
+    const part = candidate.content.parts.find((p: any) => p.inlineData);
     if (part && part.inlineData) {
-      const base64ImageBytes: string = part.inlineData.data;
+      const base64ImageBytes = part.inlineData.data;
       const mimeType = part.inlineData.mimeType;
+      if (!base64ImageBytes || !mimeType) {
+        throw new Error("A IA retornou dados de imagem incompletos.");
+      }
       return `data:${mimeType};base64,${base64ImageBytes}`;
     } else {
       throw new Error("A IA não retornou uma imagem válida.");

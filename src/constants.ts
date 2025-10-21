@@ -1,4 +1,14 @@
-import { StyleOption, Avatar } from './types.ts';
+export type StyleOption = {
+  value: string;
+  label: string;
+  description?: string;
+};
+
+export type Avatar = {
+  id: string;
+  src: string;
+  alt?: string;
+};
 
 export const FASHION_STYLES: StyleOption[] = [
   { 
