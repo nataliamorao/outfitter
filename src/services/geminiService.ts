@@ -16,6 +16,8 @@ function fileToGenerativePart(base64: string, mimeType: string) {
   };
 }
 
+const API_KEY = import.meta.env.VITE_API_KEY;
+
 export async function getFashionAdvice(
   items: ItemForApi[],
   style: string,
@@ -24,14 +26,14 @@ export async function getFashionAdvice(
   includeShoes: boolean,
   includeAccessories: boolean,
 ): Promise<Omit<Look, 'id' | 'isFavorited'>[]> {
-  if (!process.env.API_KEY) {
+  if (!API_KEY) {
     throw new Error("API key for Gemini is not set.");
   }
   if (items.length === 0) {
     throw new Error("Por favor, selecione pelo menos uma peça de roupa do seu guarda-roupa.");
   }
 
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const ai = new GoogleGenAI({ apiKey: API_KEY });
   const model = 'gemini-2.5-flash-image';
 
   const imageParts = items.map(item => fileToGenerativePart(item.base64, item.mimeType));
@@ -129,14 +131,14 @@ export async function virtualTryOn(
   avatar: { base64: string, mimeType: string },
   items: ItemForApi[]
 ): Promise<string> {
-  if (!process.env.API_KEY) {
+  if (!API_KEY) {
     throw new Error("API key for Gemini is not set.");
   }
   if (items.length === 0) {
     throw new Error("Por favor, selecione pelo menos uma peça de roupa para provar.");
   }
 
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const ai = new GoogleGenAI({ apiKey: API_KEY });
   const model = 'gemini-2.5-flash-image';
 
   const avatarPart = fileToGenerativePart(avatar.base64, avatar.mimeType);
