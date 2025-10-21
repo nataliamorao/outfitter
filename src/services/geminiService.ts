@@ -16,7 +16,7 @@ function fileToGenerativePart(base64: string, mimeType: string) {
   };
 }
 
-// FIX: The API key must be obtained from process.env.API_KEY as per the guidelines.
+// FIX: Per the coding guidelines, the API key must be obtained exclusively from `process.env.API_KEY`. This also resolves the TypeScript error for `import.meta.env`.
 const API_KEY = process.env.API_KEY;
 
 export async function getFashionAdvice(
@@ -35,8 +35,8 @@ export async function getFashionAdvice(
   }
 
   const ai = new GoogleGenAI({ apiKey: API_KEY });
-  // FIX: Switched to a more capable model for complex multimodal generation and removed invalid config.
-  const model = 'gemini-2.5-pro';
+  // FIX: Switched to a more capable model for complex multimodal generation.
+  const model = 'gemini-2.5-flash-image';
 
   const imageParts = items.map(item => fileToGenerativePart(item.base64, item.mimeType));
 
