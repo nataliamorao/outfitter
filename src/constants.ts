@@ -1,14 +1,4 @@
-export type StyleOption = {
-  value: string;
-  label: string;
-  description?: string;
-};
-
-export type Avatar = {
-  id: string;
-  src: string;
-  alt?: string;
-};
+import { StyleOption, Avatar } from './types';
 
 export const FASHION_STYLES: StyleOption[] = [
   { 
@@ -62,10 +52,9 @@ export const CLOTHING_CATEGORIES = [
   { value: 'accessory', label: 'Acessório' },
 ];
 
-// FIX: Replaced transparent placeholders with colored squares to make avatars visible.
 export const AVATARS: Avatar[] = [
-    { id: 'avatar1', src: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAAAXNSR0IArs4c6QAAAD9JREFUeJ3t0AENAAAMwqD3T20PBxQ4oAEIECBAgAABAgQIECBAgAABAgQIECBAgAABAgQIECBAgAABAgQIPgGxUwAIe03sAAAAAElFTkSuQmCC', alt: 'Modelo com cabelo escuro e pele clara' },
-    { id: 'avatar2', src: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAAAXNSR0IArs4c6QAAAD9JREFUeJ3t0AENAAAMwqD3T+1fNAQe6AECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAj8BSF8AAEk42XJAAAAAElFTkSuQmCC', alt: 'Modelo com cabelo loiro e pele clara' },
-    { id: 'avatar3', src: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAAAXNSR0IArs4c6QAAAD9JREFUeJ3t0AENAAAMwqD3T20PBxQ4oAEIECBAgAABAgQIECBAgAABAgQIECBAgAABAgQIECBAgAABAgQIPgGxUwAIe03sAAAAAElFTkSuQmCC', alt: 'Modelo com cabelo escuro e pele escura' },
-    { id: 'avatar4', src: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAAAXNSR0IArs4c6QAAAD9JREFUeJ3t0AENAAAMwqD3T+1fNAQe6AECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAj8BSF8AAEk42XJAAAAAElFTkSuQmCC', alt: 'Modelo com cabelo ruivo e pele clara' },
+    { id: 'avatar1', src: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDIwMCAzMDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPGcgY2xpcC1wYXRoPSJ1cmwoI2NsaXAwKSI+CiAgICA8cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iI2YwZjBmMCIvPgogICAgPGNpcmNsZSBjeD0iMTAwIiBjeT0iNTUiIHI9IjQwIiBmaWxsPSIjNDE0MDQwIi8+CiAgICA8cGF0aCBkPSJNMCAzMDBIMjAwVjEwMEMxNzAgMTMwIDEzMCAxMzAgMTAwIDEwMEM3MCAxMzAgMzAgMTMwIDAgMTAwWiIgZmlsbD0iIzQxNDA0MCIvPgogIDwvZz4KICA8ZGVmcz4KICAgIDxjbGlwUGF0aCBpZD0iY2xpcDAiPgogICAgICAicmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjMwMCIgcng9IjEwIiByeT0iMTAiLz4KICAgIDwvY2xpcFBhdGg+CiAgPC9kZWZzPgo8L3N2Zz4K', alt: 'Silhueta de modelo 1' },
+    { id: 'avatar2', src: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDIwMCAzMDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPGcgY2xpcC1wYXRoPSJ1cmwoI2NsaXAxKSI+CiAgICA8cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iI2YwZjBmMCIvPgogICAgPGNpcmNsZSBjeD0iMTAwIiBjeT0iNTUiIHI9IjQwIiBmaWxsPSIjNjM2MjYyIi8+CiAgICA8cGF0aCBkPSJNMCAzMDBIMjAwVjEwMEMxNzAgMTQwIDEzMCAxNDAgMTAwIDEwMEM3MCAxNDAgMzAgMTQwIDAgMTAwWiIgZmlsbD0iIzYzNjI2MiIvPgogIDwvZz4KICA8ZGVmcz4KICAgIDxjbGlwUGF0aCBpZD0iY2xpcDEiPgogICAgICAicmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjMwMCIgcng9IjEwIiByeT0iMTAiLz4KICAgIDwvY2xpcFBhdGg+CiAgPC9kZWZzPgo8L3N2Zz4K', alt: 'Silhueta de modelo 2' },
+    { id: 'avatar3', src: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDIwMCAzMDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPGcgY2xpcC1wYXRoPSJ1cmwoI2NsaXAyKSI+CiAgICA8cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iI2YwZjBmMCIvPgogICAgPGNpcmNsZSBjeD0iMTAwIiBjeT0iNTUiIHI9IjQwIiBmaWxsPSIjMmQyYzJjIi8+CiAgICA8cGF0aCBkPSJNMCAzMDBIMjAwVjExMEMxNzUgMTMwIDEyNSAxMzAgMTAwIDExMEM3NSAxMzAgMjUgMTMwIDAgMTEwWiIgZmlsbD0iIzJkMmMyYyIvPgogIDwvZz4KICA8ZGVmcz4KICAgIDxjbGlwUGF0aCBpZD0iY2xpcDIiPgogICAgICAicmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjMwMCIgcng9IjEwIiByeT0iMTAiLz4KICAgIDwvY2xpcFBhdGg+CiAgPC9kZWZzPgo8L3N2Zz4K', alt: 'Silhueta de modelo 3' },
+    { id: 'avatar4', src: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDIwMCAzMDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPGcgY2xpcC1wYXRoPSJ1cmwoI2NsaXAzKSI+CiAgICA8cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iI2YwZjBmMCIvPgogICAgPGNpcmNsZSBjeD0iMTAwIiBjeT0iNTUiIHI9IjQwIiBmaWxsPSIjN2E3OTc5Ii8+CiAgICA8cGF0aCBkPSJNMCAzMDBIMjAwVjEwNUMxNjAgMTQ1IDE0MCAxNDUgMTAwIDEwNUM2MCAxNDUgNDAgMTQ1IDAgMTA1WiIgZmlsbD0iIzdhNzk3OSIvPgogIDwvZz4KICA8ZGVmcz4KICAgIDxjbGlwUGF0aCBpZD0iY2xpcDMiPgogICAgICAicmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjMwMCIgcng9IjEwIiByeT0iMTAiLz4KICAgIDwvY2xpcFBhdGg+CiAgPC9kZWZzPgo8L3N2Zz4K', alt: 'Silhueta de modelo 4' },
 ];
