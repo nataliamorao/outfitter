@@ -12,6 +12,6 @@
     "isolatedModules": true,
     "resolveJsonModule": true
   },
-  "include": ["**/*.ts", "**/*.tsx"],
+  "include": ["**/*.ts", "**/*.tsx", "vite.config.mts"],
   "exclude": ["node_modules"]
 }
