@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "esbuild index.tsx --bundle --outfile=dist/index.js --jsx=automatic && cp index.html dist/"
+    "build": "esbuild ./index.tsx --bundle --outfile=dist/index.js --jsx=automatic && cp ./index.html dist/"
   },
   "dependencies": {
     "@google/genai": "^1.22.0"
