@@ -6,7 +6,7 @@ const outdir = 'dist';
 
 async function build() {
   try {
-    const buildDir = path.join(__dirname, outdir);
+    const buildDir = path.resolve(__dirname, outdir);
     
     // 1. Limpa o diretório de saída para garantir um build limpo
     await fs.emptyDir(buildDir);
@@ -14,7 +14,7 @@ async function build() {
 
     // 2. Compila o código TypeScript/React para um único arquivo JavaScript
     await esbuild.build({
-      entryPoints: ['./index.tsx'], // Caminho simplificado
+      entryPoints: [path.resolve(__dirname, 'index.tsx')], // Caminho absoluto para robustez
       bundle: true,
       outfile: path.join(buildDir, 'index.js'),
       jsx: 'automatic',
@@ -26,7 +26,7 @@ async function build() {
     console.log('Build do JavaScript concluído com sucesso.');
 
     // 3. Copia o arquivo index.html para o diretório de saída
-    await fs.copy('./index.html', path.join(buildDir, 'index.html'));
+    await fs.copy(path.resolve(__dirname, 'index.html'), path.join(buildDir, 'index.html'));
     console.log('Copiado o index.html.');
 
     console.log('Build finalizado com sucesso!');
