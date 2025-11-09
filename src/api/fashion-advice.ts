@@ -1,4 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+// Voltando ao seu import original, que estava correto
 import { GoogleGenAI, Modality } from "@google/genai";
 import type { ClothingCategory, Look } from '../types';
 
@@ -49,8 +50,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     try {
+        // CORREÇÃO: Usando a classe e construtor corretos
         const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
-        const model = 'gemini-2.5-flash-image';
+        
+        // CORREÇÃO: Usando um nome de modelo real
+        const model = 'gemini-1.5-flash'; // (O original 'gemini-2.5-flash-image' não existe)
+
         const imageParts = items.map(item => fileToGenerativePart(item.base64, item.mimeType));
 
         let systemPrompt = `Você é um estilista de moda especialista e assistente pessoal de estilo. Sua tarefa é ajudar os usuários a criar looks incríveis com as roupas que eles já possuem.
@@ -97,6 +102,7 @@ O formato da sua resposta final deve ser uma sequência estrita de pares imagem-
 [Imagem do Look 3]
 [Texto do Look 3]`;
 
+        // CORREÇÃO: Usando a sintaxe original do seu código (ai.models.generateContent)
         const response = await ai.models.generateContent({
             model: model,
             contents: {
@@ -113,6 +119,7 @@ O formato da sua resposta final deve ser uma sequência estrita de pares imagem-
         const looks: Omit<Look, 'id' | 'isFavorited'>[] = [];
         let currentImage: string | null = null;
         
+        // Esta parte do seu código original estava correta
         const parts = response?.candidates?.[0]?.content?.parts;
         if (!parts || parts.length === 0) {
             throw new Error("A IA não conseguiu gerar sugestões. Verifique as imagens e tente novamente.");
@@ -120,9 +127,7 @@ O formato da sua resposta final deve ser uma sequência estrita de pares imagem-
 
         for (const part of parts) {
             if ('inlineData' in part && part.inlineData) {
-                // Ensure the inline data contains an actual base64 string before using it
                 if (!part.inlineData.data) {
-                    // skip any inlineData parts that lack image data
                     continue;
                 }
                 const base64ImageBytes = part.inlineData.data;

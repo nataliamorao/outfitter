@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { GoogleGenAI, Modality } from "@google/genai";
+// Usando seu import original
+import { GoogleGenAI } from "@google/genai";
 import type { ClothingCategory } from '../types';
 
 const GEMINI_API_KEY = process.env.API_KEY;
@@ -29,64 +30,71 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     const { 
-        avatar,
-        items
+        avatar, 
+        items 
     } = req.body as {
         avatar: { base64: string, mimeType: string },
         items: ItemForApi[]
     };
-
-    if (!items || items.length === 0) {
-        return res.status(400).json({ error: "Por favor, selecione pelo menos uma peça de roupa para provar." });
-    }
-    if (!avatar) {
-        return res.status(400).json({ error: "Por favor, selecione um modelo." });
-    }
     
+    if (!avatar) {
+        return res.status(400).json({ error: "Por favor, envie uma foto de corpo inteiro." });
+    }
+    if (!items || items.length === 0) {
+        return res.status(400).json({ error: "Por favor, selecione pelo menos uma peça de roupa." });
+    }
+
     try {
         const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
-        const model = 'gemini-2.5-flash-image';
+        
+        const model = 'gemini-1.5-flash'; 
 
-        const avatarPart = fileToGenerativePart(avatar.base64, avatar.mimeType);
-        const clothingParts = items.map(item => fileToGenerativePart(item.base64, item.mimeType));
+        const imageParts = [
+            fileToGenerativePart(avatar.base64, avatar.mimeType),
+            ...items.map(item => fileToGenerativePart(item.base64, item.mimeType))
+        ];
+        
+        const itemCategories = items.map(i => i.category).join(', ');
 
-        const systemPrompt = `Você é um especialista em provador virtual de IA. Sua tarefa é vestir a pessoa na primeira imagem (o modelo) com as roupas fornecidas nas imagens subsequentes.
-  - Analise o modelo e as peças de roupa.
-  - Projete as roupas sobre o corpo do modelo de forma realista, respeitando a perspectiva, o caimento do tecido e a iluminação.
-  - Mantenha a pose original, a forma do corpo e o fundo da imagem do modelo intactos.
-  - O resultado final deve ser uma única imagem fotorrealista do modelo vestindo as roupas selecionadas.
-  - Não inclua NENHUM texto em sua resposta, apenas a imagem final.`;
+        const systemPrompt = `
+Você é um especialista em "provador virtual". Sua única tarefa é pegar a imagem de uma pessoa (avatar) e as imagens de várias peças de roupa e gerar uma nova imagem ÚNICA da pessoa vestindo APENAS as peças de roupa fornecidas.
 
+- **Avatar:** A primeira imagem é a pessoa.
+- **Peças de Roupa:** As imagens seguintes são as peças (${itemCategories}).
+
+**Instruções:**
+1.  **Analise o Avatar:** Identifique a pose e o corpo da pessoa na primeira imagem.
+2.  **Analise as Peças:** Identifique as peças de roupa nas imagens seguintes.
+3.  **Crie a Imagem:** Gere uma nova imagem fotorrealista da pessoa da primeira imagem vestindo as peças de roupa fornecidas. A imagem deve ser limpa, focada na pessoa e nas roupas, sobre um fundo branco liso.
+4.  **RESTRITO:** Sua resposta deve ser APENAS a imagem. Não inclua NENHUM texto, descrição, markdown ou qualquer outra coisa. Apenas a imagem.
+`;
+
+        // CORREÇÃO: O resultado de 'generateContent' é a própria resposta.
         const response = await ai.models.generateContent({
             model: model,
             contents: {
                 parts: [
-                { text: systemPrompt },
-                avatarPart,
-                ...clothingParts
+                    { text: systemPrompt },
+                    ...imageParts
                 ]
             },
             config: {
-                responseModalities: [Modality.IMAGE],
+                responseMimeType: "image/png",
             },
         });
-        
-        const imagePart = response?.candidates?.[0]?.content?.parts?.find(p => 'inlineData' in p && p.inlineData);
 
-        if (imagePart && 'inlineData' in imagePart) {
-            const base64ImageBytes = imagePart.inlineData?.data;
-            const mimeType = imagePart.inlineData?.mimeType;
+        // CORREÇÃO: Acessar 'candidates' diretamente do 'response'.
+        const imagePart = response.candidates?.[0]?.content?.parts?.find(part => part.inlineData);
 
-            // Ensure we have both data and mimeType before constructing the data URL
-            if (!base64ImageBytes || !mimeType) {
-                throw new Error("A IA não retornou uma imagem válida.");
-            }
-
-            const imageUrl = `data:${mimeType};base64,${base64ImageBytes}`;
-            return res.status(200).json({ image: imageUrl });
+        if (imagePart && imagePart.inlineData) {
+            const base64ImageBytes = imagePart.inlineData.data;
+            const mimeType = imagePart.inlineData.mimeType ?? 'image/png';
+            const finalImage = `data:${mimeType};base64,${base64ImageBytes}`;
+            return res.status(200).json({ image: finalImage });
         } else {
-            throw new Error("A IA não retornou uma imagem válida.");
+            throw new Error("A IA não conseguiu gerar a imagem do provador.");
         }
+
     } catch (error) {
         console.error("Error in Gemini API call (virtual-tryon):", error);
         const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
