@@ -97,22 +97,20 @@ O formato da sua resposta final deve ser uma sequência estrita de pares imagem-
 [Imagem do Look 3]
 [Texto do Look 3]`;
 
-        // --- CORREÇÃO: "contents" DEVE SER UM ARRAY ---
         const response = await ai.models.generateContent({
             model: model,
-            contents: [ // Adicionado colchete de abertura
-                {
+            contents: [ // <-- Adicione um colchete aqui
+                { 
                     parts: [
                         { text: systemPrompt },
                         ...imageParts
                     ]
                 }
-            ], // Adicionado colchete de fecho
+            ], // <-- E feche o colchete aqui
             config: {
                 responseModalities: [Modality.IMAGE],
             },
         });
-        // --- FIM DA CORREÇÃO ---
 
         const looks: Omit<Look, 'id' | 'isFavorited'>[] = [];
         let currentImage: string | null = null;

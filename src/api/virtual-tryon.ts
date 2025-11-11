@@ -67,22 +67,20 @@ Você é um especialista em "provador virtual". Sua única tarefa é pegar a ima
 4.  **RESTRITO:** Sua resposta deve ser APENAS a imagem. Não inclua NENHUM texto, descrição, markdown ou qualquer outra coisa. Apenas a imagem.
 `;
 
-        // --- CORREÇÃO: "contents" DEVE SER UM ARRAY ---
         const response = await ai.models.generateContent({
             model: model,
-            contents: [ // Adicionado colchete de abertura
+            contents: [ // <-- Adicione um colchete aqui
                 {
                     parts: [
                         { text: systemPrompt },
                         ...imageParts
                     ]
                 }
-            ], // Adicionado colchete de fecho
+            ], // <-- E feche o colchete aqui
             config: {
                 responseMimeType: "image/png",
             },
         });
-        // --- FIM DA CORREÇÃO ---
 
         const imagePart = response.candidates?.[0]?.content?.parts?.find(part => part.inlineData);
 
