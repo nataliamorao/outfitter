@@ -1,26 +1,26 @@
 {
   "name": "outfitter",
   "version": "1.0.0",
-  "type": "module",
   "private": true,
+  "type": "module",
   "scripts": {
     "build": "vite build"
   },
   "dependencies": {
     "@google/genai": "^1.22.0",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "@vercel/node": "^3.0.22"  
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^20.11.24",
-    "@types/react": "^19.2.2",
-    "@types/react-dom": "^19.2.2",
-    "@vercel/node": "^3.2.29",
-    "@vitejs/plugin-react": "^5.1.0",
     "esbuild": "^0.20.2",
     "fs-extra": "^11.2.0",
     "typescript": "^5.3.3",
-    "vite": "^7.2.2"
+    "@vitejs/plugin-react": "^4.3.1",
+    "vite": "^5.3.4",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0"
   }
 }
