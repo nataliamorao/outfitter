@@ -16,7 +16,7 @@
     "@types/node": "^20.11.24",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
-    "@vercel/node": "^3.0.22",
+    "@vercel/node": "^3.2.29",
     "@vitejs/plugin-react": "^5.1.0",
     "esbuild": "^0.20.2",
     "fs-extra": "^11.2.0",
