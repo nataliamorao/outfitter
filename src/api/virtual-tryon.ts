@@ -1,5 +1,4 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-// Usando seu import original
 import { GoogleGenAI } from "@google/genai";
 import type { ClothingCategory } from '../types';
 
@@ -46,7 +45,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     try {
         const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
-        
         const model = 'gemini-1.5-flash'; 
 
         const imageParts = [
@@ -69,21 +67,23 @@ Você é um especialista em "provador virtual". Sua única tarefa é pegar a ima
 4.  **RESTRITO:** Sua resposta deve ser APENAS a imagem. Não inclua NENHUM texto, descrição, markdown ou qualquer outra coisa. Apenas a imagem.
 `;
 
-        // CORREÇÃO: O resultado de 'generateContent' é a própria resposta.
+        // --- CORREÇÃO: "contents" DEVE SER UM ARRAY ---
         const response = await ai.models.generateContent({
             model: model,
-            contents: {
-                parts: [
-                    { text: systemPrompt },
-                    ...imageParts
-                ]
-            },
+            contents: [ // Adicionado colchete de abertura
+                {
+                    parts: [
+                        { text: systemPrompt },
+                        ...imageParts
+                    ]
+                }
+            ], // Adicionado colchete de fecho
             config: {
                 responseMimeType: "image/png",
             },
         });
+        // --- FIM DA CORREÇÃO ---
 
-        // CORREÇÃO: Acessar 'candidates' diretamente do 'response'.
         const imagePart = response.candidates?.[0]?.content?.parts?.find(part => part.inlineData);
 
         if (imagePart && imagePart.inlineData) {

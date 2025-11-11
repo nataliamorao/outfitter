@@ -1,5 +1,4 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-// Voltando ao seu import original, que estava correto
 import { GoogleGenAI, Modality } from "@google/genai";
 import type { ClothingCategory, Look } from '../types';
 
@@ -50,12 +49,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     try {
-        // CORREÇÃO: Usando a classe e construtor corretos
         const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
-        
-        // CORREÇÃO: Usando um nome de modelo real
-        const model = 'gemini-1.5-flash'; // (O original 'gemini-2.5-flash-image' não existe)
-
+        const model = 'gemini-1.5-flash';
         const imageParts = items.map(item => fileToGenerativePart(item.base64, item.mimeType));
 
         let systemPrompt = `Você é um estilista de moda especialista e assistente pessoal de estilo. Sua tarefa é ajudar os usuários a criar looks incríveis com as roupas que eles já possuem.
@@ -102,24 +97,26 @@ O formato da sua resposta final deve ser uma sequência estrita de pares imagem-
 [Imagem do Look 3]
 [Texto do Look 3]`;
 
-        // CORREÇÃO: Usando a sintaxe original do seu código (ai.models.generateContent)
+        // --- CORREÇÃO: "contents" DEVE SER UM ARRAY ---
         const response = await ai.models.generateContent({
             model: model,
-            contents: {
-                parts: [
-                    { text: systemPrompt },
-                    ...imageParts
-                ]
-            },
+            contents: [ // Adicionado colchete de abertura
+                {
+                    parts: [
+                        { text: systemPrompt },
+                        ...imageParts
+                    ]
+                }
+            ], // Adicionado colchete de fecho
             config: {
                 responseModalities: [Modality.IMAGE],
             },
         });
+        // --- FIM DA CORREÇÃO ---
 
         const looks: Omit<Look, 'id' | 'isFavorited'>[] = [];
         let currentImage: string | null = null;
         
-        // Esta parte do seu código original estava correta
         const parts = response?.candidates?.[0]?.content?.parts;
         if (!parts || parts.length === 0) {
             throw new Error("A IA não conseguiu gerar sugestões. Verifique as imagens e tente novamente.");
