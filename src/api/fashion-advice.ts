@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { GoogleGenAI, Modality } from "@google/genai";
+// CORREÇÃO 1: A importação PRECISA ter as chaves { }
+import { GoogleGenerativeAI, Modality } from "@google/genai";
 import type { ClothingCategory, Look } from '../types';
 
 const GEMINI_API_KEY = process.env.API_KEY;
@@ -49,8 +50,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     try {
-        const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
-        const model = 'gemini-1.5-flash';
+        // CORREÇÃO 2: Mude a inicialização
+        const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+        // CORREÇÃO 3: Mude como o modelo é obtido
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
         const imageParts = items.map(item => fileToGenerativePart(item.base64, item.mimeType));
 
         let systemPrompt = `Você é um estilista de moda especialista e assistente pessoal de estilo. Sua tarefa é ajudar os usuários a criar looks incríveis com as roupas que eles já possuem.
@@ -97,16 +101,16 @@ O formato da sua resposta final deve ser uma sequência estrita de pares imagem-
 [Imagem do Look 3]
 [Texto do Look 3]`;
 
-        const response = await ai.models.generateContent({
-            model: model,
-            contents: [ // <-- Adicione um colchete aqui
-                { 
+        // CORREÇÃO 4: Mude a chamada da API
+        const response = await model.generateContent({
+            contents: [ 
+                {
                     parts: [
                         { text: systemPrompt },
                         ...imageParts
                     ]
                 }
-            ], // <-- E feche o colchete aqui
+            ], 
             config: {
                 responseModalities: [Modality.IMAGE],
             },
@@ -115,8 +119,11 @@ O formato da sua resposta final deve ser uma sequência estrita de pares imagem-
         const looks: Omit<Look, 'id' | 'isFavorited'>[] = [];
         let currentImage: string | null = null;
         
-        const parts = response?.candidates?.[0]?.content?.parts;
+        // CORREÇÃO 5: Acesse a resposta com "response.response"
+        const parts = response.response?.candidates?.[0]?.content?.parts;
         if (!parts || parts.length === 0) {
+            // Log para Vercel
+            console.warn("Gemini API (fashion-advice) did not return parts. Response:", JSON.stringify(response.response, null, 2));
             throw new Error("A IA não conseguiu gerar sugestões. Verifique as imagens e tente novamente.");
         }
 
@@ -138,7 +145,15 @@ O formato da sua resposta final deve ser uma sequência estrita de pares imagem-
         }
 
         if (looks.length === 0) {
-            throw new Error("A IA não conseguiu gerar sugestões. Verifique as imagens e tente novamente.");
+            const textOnlyParts = parts.filter(p => 'text' in p && p.text).map(p => p.text).join('\n');
+            if (textOnlyParts) {
+                 looks.push({
+                    image: null,
+                    description: textOnlyParts,
+                });
+            } else {
+                throw new Error("A IA não conseguiu gerar sugestões válidas.");
+            }
         }
 
         return res.status(200).json(looks);

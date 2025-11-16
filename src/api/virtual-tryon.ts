@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { GoogleGenAI } from "@google/genai";
+// CORREÇÃO 1: A importação PRECISA ter as chaves { }
+import { GoogleGenerativeAI } from "@google/genai";
 import type { ClothingCategory } from '../types';
 
 const GEMINI_API_KEY = process.env.API_KEY;
@@ -44,8 +45,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     try {
-        const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
-        const model = 'gemini-1.5-flash'; 
+        // CORREÇÃO 2: Mude a inicialização
+        const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+        // CORREÇÃO 3: Mude como o modelo é obtido
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
         const imageParts = [
             fileToGenerativePart(avatar.base64, avatar.mimeType),
@@ -67,22 +70,23 @@ Você é um especialista em "provador virtual". Sua única tarefa é pegar a ima
 4.  **RESTRITO:** Sua resposta deve ser APENAS a imagem. Não inclua NENHUM texto, descrição, markdown ou qualquer outra coisa. Apenas a imagem.
 `;
 
-        const response = await ai.models.generateContent({
-            model: model,
-            contents: [ // <-- Adicione um colchete aqui
+        // CORREÇÃO 4: Mude a chamada da API
+        const response = await model.generateContent({
+            contents: [ 
                 {
                     parts: [
                         { text: systemPrompt },
                         ...imageParts
                     ]
                 }
-            ], // <-- E feche o colchete aqui
+            ], 
             config: {
                 responseMimeType: "image/png",
             },
         });
 
-        const imagePart = response.candidates?.[0]?.content?.parts?.find(part => part.inlineData);
+        // CORREÇÃO 5: Acesse a resposta com "response.response"
+        const imagePart = response.response?.candidates?.[0]?.content?.parts?.find(part => part.inlineData);
 
         if (imagePart && imagePart.inlineData) {
             const base64ImageBytes = imagePart.inlineData.data;
@@ -90,6 +94,12 @@ Você é um especialista em "provador virtual". Sua única tarefa é pegar a ima
             const finalImage = `data:${mimeType};base64,${base64ImageBytes}`;
             return res.status(200).json({ image: finalImage });
         } else {
+            // Log para Vercel
+            console.warn("Gemini API (virtual-tryon) did not return an image part. Response:", JSON.stringify(response.response, null, 2));
+            const textResponse = response.response?.candidates?.[0]?.content?.parts?.find(part => part.text)?.text;
+            if (textResponse) {
+                 throw new Error(`A IA retornou texto em vez de uma imagem: ${textResponse}`);
+            }
             throw new Error("A IA não conseguiu gerar a imagem do provador.");
         }
 
